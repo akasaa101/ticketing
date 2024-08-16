@@ -1,0 +1,5 @@
+/ticketing
+*.log
+.idea/
+.vscode/
+.env

@@ -1,0 +1,7 @@
+/ticketing
+*.log
+.idea/
+.vscode/
+*.test
+.git
+.gitignore
