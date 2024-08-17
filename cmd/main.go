@@ -1,16 +1,23 @@
 package main
 
 import (
+	"github.com/akasaa101/ticketing/internal/router"
 	"github.com/gofiber/fiber/v2"
-	"log"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
 	app := fiber.New()
+	app.Use(logger.New())
+	app.Use(cors.New())
+	router.SetupRoutes(app)
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello World!")
+	app.Use(func(c *fiber.Ctx) error {
+		return c.SendStatus(404) // => 404 "Not Found"
 	})
-
-	log.Fatal(app.Listen(":8080"))
+	err := app.Listen(":8080")
+	if err != nil {
+		return
+	}
 }
