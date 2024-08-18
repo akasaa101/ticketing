@@ -13,6 +13,7 @@ type TicketRepository struct {
 type TicketService interface {
 	TicketInsert(ticket models.Ticket) (models.Ticket, error)
 	TicketGetById(id int16) (models.Ticket, error)
+	PurchaseTicket(id int16, quantity int) error
 }
 
 func NewTicketService(repository repositories.TicketRepository) *TicketRepository {
@@ -35,6 +36,9 @@ func (tr TicketRepository) TicketGetById(id int16) (models.Ticket, error) {
 	return ticket, nil
 }
 func (tr TicketRepository) PurchaseTicket(id int16, quantity int) error {
+	if quantity < 0 {
+		return errors.New("non-positive quantity")
+	}
 	ticket, err := tr.Repository.Get(id)
 	if err != nil {
 		return err

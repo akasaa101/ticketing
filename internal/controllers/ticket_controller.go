@@ -80,7 +80,36 @@ func (bs TicketService) GetTicket(c *fiber.Ctx) error {
 	})
 }
 
-func (ts TicketService) PurchaseTicket(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+func (bs TicketService) PurchaseTicket(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil || id < 1 {
+		return c.Status(http.StatusBadRequest).SendString("Invalid ticket ID.")
+	}
+
+	var request struct {
+		Quantity int `json:"quantity"`
+	}
+
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(http.StatusBadRequest).SendString("Failed to parse request body.")
+	}
+
+	err = bs.Service.PurchaseTicket(int16(id), request.Quantity)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return c.Status(http.StatusNotFound).SendString("Ticket not found.")
+		}
+		if strings.Contains(err.Error(), "non-positive quantity") {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error":   "Invalid purchase quantity.",
+				"message": err.Error(),
+			})
+		}
+		if strings.Contains(err.Error(), "insufficient allocation") {
+			return c.Status(http.StatusConflict).SendString("Insufficient ticket allocation.")
+		}
+		return c.Status(http.StatusInternalServerError).SendString("Internal server error.")
+	}
+
+	return c.SendStatus(http.StatusOK)
 }
