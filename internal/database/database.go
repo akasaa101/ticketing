@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 	"github.com/akasaa101/ticketing/internal/config"
-	"github.com/akasaa101/ticketing/internal/model"
+	"github.com/akasaa101/ticketing/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -34,7 +34,7 @@ func Connect() {
 	}
 	log.Println("Connected")
 	db.Logger = logger.Default.LogMode(logger.Info)
-	err = db.AutoMigrate(&model.Ticket{})
+	err = db.AutoMigrate(&models.Ticket{})
 	if err != nil {
 		return
 	}
