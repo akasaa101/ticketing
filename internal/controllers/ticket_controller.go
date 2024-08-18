@@ -23,6 +23,14 @@ func NewTicketController(service services.TicketService) *TicketService {
 	return &TicketService{service}
 }
 
+// CreateTicket handles the creation of a new ticket
+// @Summary Create a new ticket
+// @Tags Tickets
+// @Accept json
+// @Produce json
+// @Param ticket body models.Ticket true "Ticket Data"
+// @Success 201 {object} map[string]interface{}
+// @Router /tickets [post]
 func (ts TicketService) CreateTicket(c *fiber.Ctx) error {
 	var ticket models.Ticket
 
@@ -49,6 +57,16 @@ func (ts TicketService) CreateTicket(c *fiber.Ctx) error {
 	})
 }
 
+// GetTicket godoc
+// @Summary Get a ticket by ID
+// @Description Retrieve a ticket's details by its ID
+// @Tags Tickets
+// @Produce json
+// @Param id path int true "Ticket ID"
+// @Success 200 {object} models.Ticket
+// @Failure 400 {object} fiber.Map "Invalid ticket ID"
+// @Failure 404 {object} fiber.Map "Ticket not found"
+// @Router /tickets/{id} [get]
 func (bs TicketService) GetTicket(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil || id < 1 {
@@ -80,6 +98,19 @@ func (bs TicketService) GetTicket(c *fiber.Ctx) error {
 	})
 }
 
+// PurchaseTicket godoc
+// @Summary Purchase a ticket
+// @Description Purchase a ticket by specifying the quantity
+// @Tags Tickets
+// @Accept json
+// @Produce json
+// @Param id path int true "Ticket ID"
+// @Param quantity body int true "Quantity to purchase"
+// @Success 200 {string} string "Purchase successful"
+// @Failure 400 {object} fiber.Map "Invalid ticket ID or quantity"
+// @Failure 404 {string} string "Ticket not found"
+// @Failure 409 {string} string "Insufficient ticket allocation"
+// @Router /tickets/{id}/purchases [post]
 func (bs TicketService) PurchaseTicket(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil || id < 1 {

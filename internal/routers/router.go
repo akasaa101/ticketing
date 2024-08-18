@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// SetupRoutes sets up the application routes
 func SetupRoutes(app *fiber.App, tc controllers.TicketController) {
 	ticket := app.Group("/tickets")
 	ticket.Post("/", tc.CreateTicket)
