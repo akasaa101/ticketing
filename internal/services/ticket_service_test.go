@@ -44,22 +44,13 @@ func TestTicketService_TicketInsert(t *testing.T) {
 		mockRepo.On("Insert", ticket).Return(nil)
 
 		err := service.TicketInsert(ticket)
+
 		assert.NoError(t, err)
 
+		mockRepo.AssertCalled(t, "Insert", ticket)
 		mockRepo.AssertExpectations(t)
 	})
 
-	/*	t.Run("Failure", func(t *testing.T) {
-		mockRepo.On("Insert", mock.MatchedBy(func(t models.Ticket) bool {
-			return t.Name == "example" && t.Desc == "sample description" && t.Allocation == 100
-		})).Return(errors.New("failed to insert ticket"))
-
-		err := service.TicketInsert(ticket)
-		assert.Error(t, err)
-		assert.Equal(t, "failed to insert ticket", err.Error())
-
-		mockRepo.AssertExpectations(t)
-	})*/
 }
 
 func TestTicketService_GetTicketById(t *testing.T) {

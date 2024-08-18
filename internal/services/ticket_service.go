@@ -11,7 +11,7 @@ type TicketRepository struct {
 }
 
 type TicketService interface {
-	TicketInsert(ticket models.Ticket) error
+	TicketInsert(ticket models.Ticket) (models.Ticket, error)
 	TicketGetById(id int16) (models.Ticket, error)
 }
 
@@ -19,22 +19,21 @@ func NewTicketService(repository repositories.TicketRepository) *TicketRepositor
 	return &TicketRepository{repository}
 }
 
-func (tr TicketRepository) TicketInsert(ticket models.Ticket) error {
-	err := tr.Repository.Insert(ticket) // This should be properly invoked
+func (tr TicketRepository) TicketInsert(ticket models.Ticket) (models.Ticket, error) {
+	insertedTicket, err := tr.Repository.Insert(ticket)
 	if err != nil {
-		return err
+		return models.Ticket{}, err
 	}
-	return nil
+	return insertedTicket, nil
 }
 
 func (tr TicketRepository) TicketGetById(id int16) (models.Ticket, error) {
-	result, err := tr.Repository.Get(id)
+	ticket, err := tr.Repository.Get(id)
 	if err != nil {
-		return result, err
+		return models.Ticket{}, err
 	}
-	return result, nil
+	return ticket, nil
 }
-
 func (tr TicketRepository) PurchaseTicket(id int16, quantity int) error {
 	ticket, err := tr.Repository.Get(id)
 	if err != nil {

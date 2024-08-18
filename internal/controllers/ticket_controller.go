@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type TicketService struct {
@@ -32,7 +33,7 @@ func (ts TicketService) CreateTicket(c *fiber.Ctx) error {
 		})
 	}
 
-	err := ts.Service.TicketInsert(ticket)
+	insertedTicket, err := ts.Service.TicketInsert(ticket)
 	if err != nil {
 		return c.Status(http.StatusBadGateway).JSON(fiber.Map{
 			"error":   "Service unavailable.",
@@ -41,19 +42,42 @@ func (ts TicketService) CreateTicket(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusCreated).JSON(fiber.Map{
-		"message": "Ticket created successfully.",
+		"id":         insertedTicket.Id,
+		"name":       insertedTicket.Name,
+		"desc":       insertedTicket.Desc,
+		"allocation": insertedTicket.Allocation,
 	})
 }
 
 func (bs TicketService) GetTicket(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
-
-	result, err := bs.Service.TicketGetById(int16(id))
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(err.Error())
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil || id < 1 {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error":   "Invalid ticket ID.",
+			"message": err.Error(),
+		})
 	}
 
-	return c.Status(http.StatusOK).JSON(result)
+	ticket, err := bs.Service.TicketGetById(int16(id))
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return c.Status(http.StatusNotFound).JSON(fiber.Map{
+				"error":   "Ticket not found.",
+				"message": err.Error(),
+			})
+		}
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error":   "Internal server error.",
+			"message": err.Error(),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"id":         ticket.ID,
+		"name":       ticket.Name,
+		"desc":       ticket.Desc,
+		"allocation": ticket.Allocation,
+	})
 }
 
 func (ts TicketService) PurchaseTicket(c *fiber.Ctx) error {
