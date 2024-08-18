@@ -20,6 +20,9 @@ type TicketRepository interface {
 }
 
 func (tdb DbInstance) Insert(ticket models.Ticket) (models.Ticket, error) {
+	if ticket.Allocation < 0 {
+		return models.Ticket{}, errors.New("allocation cannot be negative")
+	}
 	if result := tdb.DB.Create(&ticket); result.Error != nil {
 		log.Printf("ticketRepository Insert error : %s", result.Error)
 		return models.Ticket{}, result.Error
@@ -41,6 +44,9 @@ func (bdb DbInstance) Get(id int16) (models.Ticket, error) {
 }
 
 func (tdb DbInstance) Update(ticket models.Ticket) error {
+	if ticket.Allocation < 0 {
+		return errors.New("allocation cannot be negative")
+	}
 	if result := tdb.DB.Save(&ticket); result.Error != nil {
 		log.Printf("ticketRepository Update error : %s", result.Error)
 		return result.Error
